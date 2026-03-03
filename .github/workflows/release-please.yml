@@ -23,3 +23,40 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  publish-images:
+    name: Build and Push Release Images
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: src/go.mod
+          cache-dependency-path: src/go.sum
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.IMAGE_REGISTRY || '8gears.container-registry.com' }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push all images
+        run: task images
+        env:
+          VERSION: ${{ needs.release-please.outputs.version }}
+          IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY || '8gears.container-registry.com' }}
+          IMAGE_NAMESPACE: ${{ vars.IMAGE_NAMESPACE || '8gcr' }}
