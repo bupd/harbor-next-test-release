@@ -1,0 +1,66 @@
+# Configuration for typos spell checker
+# https://github.com/crate-ci/typos
+
+[default]
+extend-ignore-identifiers-re = [
+    # Base64 encoded data patterns
+    "[A-Za-z0-9+/]{20,}",
+]
+
+[default.extend-words]
+# Harbor-specific and common tech abbreviations
+cfg = "cfg"
+ctx = "ctx"
+req = "req"
+resp = "resp"
+impl = "impl"
+init = "init"
+# Harbor component names
+registryctl = "registryctl"
+jobservice = "jobservice"
+# Container/OCI terminology
+oci = "oci"
+oras = "oras"
+
+[files]
+extend-exclude = [
+    # Certificate and key files
+    "*.pem",
+    "*.crt",
+    "*.key",
+
+    # Generated files
+    "*.pb.go",
+    "*.generated.go",
+    "*_gen.go",
+    "CHANGELOG.md",
+    "CONTRIBUTORS.md",
+    "src/server/v2.0/",
+    "src/portal/ng-swagger-gen/",
+
+    # Vendor directories
+    "vendor/",
+    "node_modules/",
+
+    # Build artifacts
+    "dist/",
+    "bin/",
+
+    # Lock files
+    "go.sum",
+    "bun.lock",
+    "package-lock.json",
+
+    # Test fixtures
+    "**/testdata/",
+]
+
+[type.md]
+extend-ignore-re = [
+    # URLs
+    "https?://[^\\s]+",
+    # Code blocks
+    "```[\\s\\S]*?```",
+    # Inline code
+    "`[^`]+`",
+]
