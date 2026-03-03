@@ -12,6 +12,7 @@
     {"type": "ci", "section": "CI/CD"},
     {"type": "build", "section": "Build System"}
   ],
+  "bootstrap-sha": "123fb099df0cc04c99bdb92f01a6da552fafd0fd",
   "packages": {
     ".": {
       "version-file": "VERSION"
