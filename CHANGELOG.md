@@ -6,6 +6,18 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.15.1](https://github.com/bupd/harbor-next-test-release/compare/v2.15.0...v2.15.1) (2026-03-03)
+
+
+### Bug Fixes
+
+* move bootstrap-sha to config, clean manifest ([143daea](https://github.com/bupd/harbor-next-test-release/commit/143daea9d18184a8a07886025503b2d11e280e28))
+
+
+### CI/CD
+
+* add release-please pipeline ([15264a6](https://github.com/bupd/harbor-next-test-release/commit/15264a6742e13ec44fdeaeb5f664ca29c7f8f993))
+
 ## v2.14.x
 
 ### v2.14.2 (2026-01-15)
