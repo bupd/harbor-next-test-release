@@ -13,6 +13,26 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    services:
+      postgresql:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: root123
+          POSTGRES_DB: registry
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      POSTGRESQL_HOST: localhost
+      POSTGRESQL_USR: postgres
+      POSTGRESQL_PORT: "5432"
+      POSTGRESQL_PWD: root123
+      POSTGRESQL_DATABASE: registry
     steps:
       - uses: actions/checkout@v4
 
