@@ -32,8 +32,8 @@ class TestPodmanPullPush(unittest.TestCase):
             3. Push a new image in project by user;
             4. Podman login harbor;
             5. Podman pull image from project(PA) by user;
-            6. Podman pull soure image;
-            7. Podman push soure image to project by user;
+            6. Podman pull source image;
+            7. Podman push source image to project by user;
             8. Verify the image;
             9. Podman logout harbor;
         """
@@ -56,10 +56,10 @@ class TestPodmanPullPush(unittest.TestCase):
         # 5. Podman pull image from project(PA) by user
         podman.pull("{}/{}/{}:{}".format(harbor_server, project_name, self.image, self.tag))
 
-        # 6. Podman pull soure image
+        # 6. Podman pull source image
         podman.pull("{}:{}".format(self.source_image, self.source_tag))
 
-        # 7. Podman push soure image to project by user
+        # 7. Podman push source image to project by user
         podman.push("{}:{}".format(self.source_image, self.source_tag), "{}/{}/{}:{}".format(harbor_server, project_name, self.image, self.tag))
 
         # 8. Verify the image

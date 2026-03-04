@@ -118,7 +118,7 @@ def restart_process(process):
     elif process == "containerd":
         full_process_name = "/usr/local/bin/containerd"
     else:
-        raise Exception("Please input dockerd or containerd for process retarting.")
+        raise Exception("Please input dockerd or containerd for process restarting.")
     run_command_with_popen("ps aux |grep " + full_process_name)
     for i in range(10):
         pid = run_command_with_popen(["pidof " + full_process_name])

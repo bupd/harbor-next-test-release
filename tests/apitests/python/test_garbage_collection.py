@@ -40,12 +40,12 @@ class TestProjects(unittest.TestCase):
             3. Push a image in project(PA) and then delete repository by admin;
             4. Get repository by user(UA), it should get nothing;
             5. Push a image in project(PB) by admin and delete the only tag;
-            6. Tigger garbage collection operation;
+            6. Trigger garbage collection operation;
             7. Check garbage collection job was finished;
             8. Get garbage collection log, check there is a number of files was deleted;
             9. Check garbage collection details;
             10. Check the log for garbage collection workers;
-            11. Tigger garbage collection operation;
+            11. Trigger garbage collection operation;
             12. Check garbage collection job was finished;
             13. Get garbage collection log, check there is a number of files was deleted;
             14. Repository with untag image should be still there;
@@ -79,7 +79,7 @@ class TestProjects(unittest.TestCase):
         push_special_image_to_project(TestProjects.project_gc_untag_name, harbor_server, admin_name, admin_password, self.repo_name_untag, [self.tag])
         self.artifact.delete_tag(TestProjects.project_gc_untag_name, self.repo_name_untag, self.tag, self.tag, **ADMIN_CLIENT)
 
-        #6. Tigger garbage collection operation;
+        #6. Trigger garbage collection operation;
         gc_id = self.gc.gc_now(**ADMIN_CLIENT)
 
         #7. Check garbage collection job was finished;
@@ -98,7 +98,7 @@ class TestProjects(unittest.TestCase):
         gc_log = self.gc.get_gc_log_by_id(gc_id, **ADMIN_CLIENT)
         self.assertIn("workers: 1", gc_log)
 
-        #11. Tigger garbage collection operation;
+        #11. Trigger garbage collection operation;
         workers = 2
         gc_id = self.gc.gc_now(is_delete_untagged=True, workers=2, **ADMIN_CLIENT)
 

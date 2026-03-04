@@ -314,7 +314,7 @@ class TestJobServiceDashboard(unittest.TestCase, object):
     def testJobServiceDashboardAPIPermission(self):
         """
         Test case:
-            Log Rotaion Permission API
+            Log Rotation Permission API
         Test step and expected result:
             1. Create a new user(UA);
             2. User(UA) should not have permission to list job queue API;

@@ -23,7 +23,7 @@ class TestLogRotation(unittest.TestCase, object):
     def testLogRotation(self):
         """
         Test case:
-            Log Rotaion API
+            Log Rotation API
         Test step and expected result:
             1. Create a purge audit log job;
             2. Stop this purge audit log job;
@@ -89,7 +89,7 @@ class TestLogRotation(unittest.TestCase, object):
     def testLogRotationAPIPermission(self):
         """
         Test case:
-            Log Rotaion Permission API
+            Log Rotation Permission API
         Test step and expected result:
             1. Create a new user(UA);
             2. User(UA) should not have permission to create purge schedule API;

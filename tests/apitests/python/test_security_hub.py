@@ -166,7 +166,7 @@ class TestSecurityHub(unittest.TestCase):
     def testSecurityHubAPIValidate(self):
         """
         Test case:
-            Log Rotaion Permission API
+            Log Rotation Permission API
         Test step and expected result:
             1. Create a new user(UA);
             2. User(UA) should not have permission to call get vulnerability system summary API;

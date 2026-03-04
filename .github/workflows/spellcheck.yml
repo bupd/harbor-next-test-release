@@ -28,12 +28,3 @@ jobs:
       - uses: crate-ci/typos@master
         with:
           config: .typos.toml
-          files: >-
-            .github
-            taskfile
-            CLAUDE.md
-            CHANGELOG.md
-            README.md
-            lefthook.yml
-            Taskfile.yml
-            versions.env
