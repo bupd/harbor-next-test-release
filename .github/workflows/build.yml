@@ -27,6 +27,15 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       POSTGRESQL_HOST: localhost
       POSTGRESQL_USR: postgres
@@ -34,6 +43,10 @@ jobs:
       POSTGRESQL_PWD: root123
       POSTGRESQL_DATABASE: registry
       POSTGRES_MIGRATION_SCRIPTS_PATH: ${{ github.workspace }}/make/migrations/postgresql
+      # Harbor unit test flag - disables code paths that need a live registry
+      UTTEST: "true"
+      # Redis URL for jobservice tests
+      JOB_SERVICE_POOL_REDIS_URL: "redis://localhost:6379"
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -51,7 +64,16 @@ jobs:
         run: task build:gen-apis
 
       - name: Run unit tests
-        run: task test:unit
+        working-directory: src
+        run: |
+          # Exclude packages that require services not available in CI:
+          # - LDAP tests need a real LDAP server
+          # - core/api and core/controllers need the full Harbor stack
+          # - pkg/proxy/connection needs the proxy service
+          pkgs=$(go list ./... | grep -vE \
+            '/controller/ldap$|/core/auth/ldap$|/pkg/ldap$|/core/api$|/core/controllers$|/pkg/proxy/connection$' \
+            | tr '\n' ' ')
+          go test -v -race -cover $pkgs
 
       - name: Lint API spec
         run: task test:lint:api
