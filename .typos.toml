@@ -39,8 +39,8 @@ extend-exclude = [
     # Non-English i18n translation files
     "src/portal/src/i18n/",
 
-    # Robot framework test files (upstream, keyword typos are load-bearing)
-    "*.robot",
+    # Upstream test suite
+    "tests/",
 
     # Upstream files with company names, non-English brands
     "ADOPTERS.md",
