@@ -33,6 +33,7 @@ jobs:
       POSTGRESQL_PORT: "5432"
       POSTGRESQL_PWD: root123
       POSTGRESQL_DATABASE: registry
+      POSTGRES_MIGRATION_SCRIPTS_PATH: ${{ github.workspace }}/make/migrations/postgresql
     steps:
       - uses: actions/checkout@v4
 
