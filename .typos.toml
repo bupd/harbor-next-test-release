@@ -59,6 +59,9 @@ extend-exclude = [
 
     # Upstream adopter/contributor files with company names and non-English brands
     "ADOPTERS.md",
+
+    # Upstream test suite (robot framework files with inherited typos in keyword names)
+    "tests/",
 ]
 
 [type.md]
