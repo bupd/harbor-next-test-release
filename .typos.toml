@@ -29,39 +29,29 @@ extend-exclude = [
     "*.crt",
     "*.key",
 
-    # Generated files
-    "*.pb.go",
-    "*.generated.go",
-    "*_gen.go",
-    "CHANGELOG.md",
-    "CONTRIBUTORS.md",
-    "src/server/v2.0/",
-    "src/portal/ng-swagger-gen/",
-
-    # Vendor directories
-    "vendor/",
-    "node_modules/",
-
-    # Build artifacts
-    "dist/",
-    "bin/",
-
-    # Lock files
-    "go.sum",
-    "bun.lock",
-    "package-lock.json",
-
-    # Test fixtures
-    "**/testdata/",
-
-    # Upstream SQL migration files (contain SQL aliases like `fo`, `eto` that are not typos)
-    "make/migrations/",
+    # Upstream Harbor source - not ours to fix
+    "src/",
+    "api/",
+    "make/",
+    "tools/",
+    "tests/",
+    "devenv/",
+    "dockerfile/",
+    "contrib/",
 
     # Upstream adopter/contributor files with company names and non-English brands
     "ADOPTERS.md",
+    "CONTRIBUTORS.md",
+    "CHANGELOG.md",
 
-    # Upstream test suite (robot framework files with inherited typos in keyword names)
-    "tests/",
+    # Vendor and generated artifacts
+    "vendor/",
+    "node_modules/",
+    "dist/",
+    "bin/",
+    "go.sum",
+    "bun.lock",
+    "package-lock.json",
 ]
 
 [type.md]
