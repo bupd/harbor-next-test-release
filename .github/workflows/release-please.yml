@@ -25,13 +25,18 @@ jobs:
           manifest-file: .release-please-manifest.json
 
   publish-images:
-    name: Build and Push Release Images
+    name: Build, Sign, and Push Release Images
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
+    env:
+      IMAGE_REGISTRY: registry.goharbor.io
+      IMAGE_NAMESPACE: harbor-next
+      VERSION: ${{ needs.release-please.outputs.version }}
+      TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -42,21 +47,142 @@ jobs:
 
       - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
 
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
       - uses: arduino/setup-task@24c5e13bce349197642746563945fcdf9355e8f4 # v2
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Record the public HEAD SHA before any patches are applied.
+      # After the commit+reset cycle below, git rev-parse HEAD still returns this
+      # SHA - which is what gets baked into the GIT_COMMIT field of every binary.
+      - name: Record public HEAD SHA
+        run: echo "PUBLIC_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Configure git identity
+        run: |
+          git config user.email "release-bot@users.noreply.github.com"
+          git config user.name "Release Bot"
+
+      # Pull enterprise patches from a private repository into patches/ so the
+      # apply step below handles everything in one place.
+      - name: Fetch enterprise patches
+        if: ${{ vars.PATCHES_REPO != '' }}
+        env:
+          PATCHES_TOKEN: ${{ secrets.PATCHES_TOKEN }}
+        run: |
+          git clone --depth=1 \
+            "https://x-access-token:${PATCHES_TOKEN}@github.com/${{ vars.PATCHES_REPO }}" \
+            /tmp/enterprise-patches
+          mkdir -p patches
+          # Copy patch files (skip if none found)
+          ls /tmp/enterprise-patches/*.patch 1>/dev/null 2>&1 \
+            && cp /tmp/enterprise-patches/*.patch patches/ || true
+          # Copy feature manifest if present
+          cp /tmp/enterprise-patches/MANIFEST patches/MANIFEST.enterprise 2>/dev/null || true
+
+      # Apply all patches from patches/, create a transient local commit, then
+      # immediately reset it. After the reset, HEAD == PUBLIC_SHA again, so
+      # `git rev-parse HEAD` in the Taskfile returns the public SHA - but the
+      # patched source is still present in the working tree for the build.
+      - name: Apply patches (commit + reset)
+        id: patches
+        run: |
+          if ! ls patches/*.patch 1>/dev/null 2>&1; then
+            echo "No patches found, skipping."
+            echo "applied=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Patches to apply:"
+          ls patches/*.patch
+
+          git apply --3way patches/*.patch
+          git add -A
+          git commit -m "temp: apply enterprise patches for ${TAG_NAME}"
+          # Reset HEAD back to the public SHA; patched source stays in working tree
+          git reset HEAD~1
+          echo "applied=true" >> "$GITHUB_OUTPUT"
+
       - name: Log in to registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
-          registry: ${{ vars.IMAGE_REGISTRY || '8gears.container-registry.com' }}
+          registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
+      # task images compiles Go binaries then builds multi-arch Docker images.
+      # GIT_COMMIT in binaries == PUBLIC_SHA because HEAD was reset above.
       - name: Build and push all images
         run: task images
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
+
+      - name: Sign images
         env:
-          VERSION: ${{ needs.release-please.outputs.version }}
-          IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY || '8gears.container-registry.com' }}
-          IMAGE_NAMESPACE: ${{ vars.IMAGE_NAMESPACE || '8gcr' }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: |
+          for image in core jobservice registryctl exporter portal registry trivy-adapter nginx; do
+            cosign sign --yes --key env://COSIGN_PRIVATE_KEY \
+              "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/harbor-${image}:${VERSION}"
+          done
+
+      # Prepend an enterprise features section and an image reference table
+      # to the release notes that release-please already generated.
+      - name: Update release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REGISTRY="${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}"
+          IMAGES="core jobservice registryctl exporter portal registry trivy-adapter nginx"
+
+          # Collect enterprise feature descriptions.
+          # Precedence: patches/MANIFEST.enterprise > patches/MANIFEST > patch filenames.
+          FEATURES=""
+          for manifest in patches/MANIFEST.enterprise patches/MANIFEST; do
+            if [ -f "$manifest" ]; then
+              while IFS= read -r line; do
+                trimmed=$(echo "$line" | sed 's/^[[:space:]]*//')
+                [ -n "$trimmed" ] && FEATURES="${FEATURES}\n- ${trimmed}"
+              done < "$manifest"
+              break
+            fi
+          done
+          if [ -z "$FEATURES" ] && ls patches/*.patch 1>/dev/null 2>&1; then
+            for f in patches/*.patch; do
+              name=$(basename "$f" .patch | tr '-_' ' ')
+              FEATURES="${FEATURES}\n- ${name}"
+            done
+          fi
+
+          {
+            if [ -n "$FEATURES" ]; then
+              echo "## Enterprise Features"
+              echo ""
+              echo "This release includes the following enterprise enhancements:"
+              printf "%b\n" "${FEATURES}"
+              echo ""
+            fi
+
+            echo "## Container Images"
+            echo ""
+            echo "Multi-arch images (\`linux/amd64\`, \`linux/arm64\`) signed with [cosign](https://github.com/sigstore/cosign)."
+            echo ""
+            echo "| Image | Reference |"
+            echo "|-------|-----------|"
+            for image in $IMAGES; do
+              echo "| \`harbor-${image}\` | \`${REGISTRY}/harbor-${image}:${TAG_NAME}\` |"
+            done
+            echo ""
+            echo "**Verify an image signature:**"
+            echo "\`\`\`sh"
+            echo "cosign verify --key cosign.pub ${REGISTRY}/harbor-core:${TAG_NAME}"
+            echo "\`\`\`"
+            echo ""
+            echo "---"
+            echo ""
+            gh release view "${TAG_NAME}" --json body -q .body
+          } | gh release edit "${TAG_NAME}" --notes-file -
