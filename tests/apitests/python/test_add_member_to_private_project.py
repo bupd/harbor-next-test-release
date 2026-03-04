@@ -52,7 +52,7 @@ class TestProjects(unittest.TestCase):
         self.assertNotEqual(result, False, msg="Failed to add member user_001 to project_001, result is {}".format(result))
 
 
-        #5 Get private project of user-001, user-001 can see only one private project which is project-001
+        #5 Get private project of uesr-001, uesr-001 can see only one private project which is project-001
         project_data = self.project.get_projects(dict(public=False), **USER_001_CLIENT)
         self.assertEqual(len(project_data), 1, msg="Private project count should be 1.")
         self.assertEqual(str(project_data[0].project_id), str(project_001_id), msg="Project-id check failed, please check this test case.")

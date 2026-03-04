@@ -20,7 +20,7 @@ def docker_info_display():
 
 def docker_login_cmd(harbor_host, username, password, cfg_file = "./tests/apitests/python/update_docker_cfg.sh",  enable_manifest = True):
     if  username == "" or password == "":
-        print("[Warning]: No docker credential was provided.")
+        print("[Warnig]: No docker credential was provided.")
         return
     command = ["docker", "login", harbor_host, "-u", username, "-p", password]
     base.run_command(command)
@@ -100,7 +100,7 @@ class DockerAPI(object):
         ret = ""
         err_message = ""
         if  username == "" or password == "":
-            print("[Warning]: No docker credential was provided.")
+            print("[Warnig]: No docker credential was provided.")
             return
         if expected_error_message == "":
             expected_error_message = None
@@ -164,7 +164,7 @@ class DockerAPI(object):
         ret = ""
         try:
             ret = self.DCLIENT.tag(image, harbor_registry, _tag, force=True)
-            print("Docker image tag command return:", ret)
+            print("Docker image tag commond return:", ret)
             return harbor_registry, _tag
         except docker.errors.APIError as err:
             raise Exception(r" Docker tag image {} failed, error is [{}]".format (image, str(err)))

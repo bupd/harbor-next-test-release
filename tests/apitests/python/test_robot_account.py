@@ -186,12 +186,12 @@ class TestRobotAccount(unittest.TestCase):
             17. List system robot account successfully;
             18. Delete the system robot account;
             19. Verify the system robot account has no the corresponding right;
-            20. Add a system robot account with all projects covered;
+            20. Add a system robot account with all projects coverd;
             21. Verify the system robot account has no the corresponding right;
         """
         #1. Define a number of access lists;
 
-        # In this privilege check list, make sure that each of lines and rows must
+        # In this priviledge check list, make sure that each of lines and rows must
         #   contains both True and False value.
         check_list = [
             [True, True, True, False, True, False, True],
@@ -324,7 +324,7 @@ class TestRobotAccount(unittest.TestCase):
         #19. Verify the system robot account has no the corresponding right;
         self.verify_repository_unpushable(project_access_list, SYSTEM_RA_CLIENT)
 
-        #20. Add a system robot account with all projects covered;
+        #20. Add a system robot account with all projects coverd;
         all_true_access_list= self.robot.create_access_list( [True] * 7 )
         robot_account_Permissions_list = []
         robot_account_Permissions = v2_swagger_client.RobotPermission(kind = "project", namespace = "*", access = all_true_access_list)

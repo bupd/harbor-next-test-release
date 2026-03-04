@@ -190,7 +190,7 @@ class HarborAPI:
                                 print(body)
                                 request(url+"projects/"+project["name"]+"/preheat/policies", 'post', **body)
                         else:
-                            raise Exception(r"Please verify if distribution {} has been created.".format(policy["provider_name"]))
+                            raise Exception(r"Please verify if distribution {} has beed created.".format(policy["provider_name"]))
         else:
             raise Exception(r"Error: Feature {} has no branch {}.".format(sys._getframe().f_code.co_name, branch))
 
@@ -437,7 +437,7 @@ class HarborAPI:
                                 {
                                     "kind":"doublestar",
                                     "decoration":"repoMatches",
-                                    "pattern":tag_retention_rule["repository_pattern"]
+                                    "pattern":tag_retention_rule["repository_patten"]
                                 }
                             ]
                         },

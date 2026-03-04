@@ -246,7 +246,7 @@
             }
          ],
          "tag_retention_rule":{
-            "repository_pattern":"*photon*",
+            "repository_patten":"*photon*",
             "tag_decoration":"*v1.*",
             "latestPushedK":666,
             "latestPushedK_verify":"666",
@@ -382,7 +382,7 @@
             }
          ],
          "tag_retention_rule":{
-            "repository_pattern":"*centos*",
+            "repository_patten":"*centos*",
             "tag_decoration":"*latest",
             "latestPushedK":999,
             "latestPushedK_verify":"999",

@@ -70,7 +70,7 @@ class TestProjects(unittest.TestCase):
         TestProjects.project_push_chart_id, TestProjects.project_push_chart_name = self.project.create_project(
             metadata={"public": "false"}, **TestProjects.USER_CLIENT)
 
-        # 3 Push an chart(CA) to Harbor by helm CLI successfully;
+        # 3 Push an chart(CA) to Harbor by hel CLI successfully;
         command = ["tar", "zxf", self.chart_file_path]
         base.run_command(command)
         # 3.1 helm_registry_login;

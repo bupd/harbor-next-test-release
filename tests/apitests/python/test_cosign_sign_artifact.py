@@ -59,7 +59,7 @@ class TestCosign(unittest.TestCase):
 
         # 2.1. Create private project(PA) by user(UA)
         TestCosign.project_id, TestCosign.project_name = self.project.create_project(metadata = {"public": "false"}, **TestCosign.user_client)
-        # 2.2. Get private project of user-001, user-001 can see only one private project which is project-001
+        # 2.2. Get private project of uesr-001, uesr-001 can see only one private project which is project-001
         self.project.projects_should_exist(dict(public=False), expected_count = 1, expected_project_id = TestCosign.project_id, **TestCosign.user_client)
 
         # 3. Push a new image(IA) in project(PA) by user(UA)

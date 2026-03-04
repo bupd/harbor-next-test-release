@@ -49,7 +49,7 @@ class TestQuotaSorting(unittest.TestCase):
         """
         url = ADMIN_CLIENT["endpoint"]
         user_001_password = "Aa123456"
-        global_admin_client = dict(endpoint=ADMIN_CLIENT["endpoint"], username=ADMIN_CLIENT["username"], password=ADMIN_CLIENT["password"], reference="project")
+        global_admin_client = dict(endpoint=ADMIN_CLIENT["endpoint"], username=ADMIN_CLIENT["username"], passwor=ADMIN_CLIENT["password"], reference="project")
 
         #1. Create user-001
         TestQuotaSorting.user_001_id, user_001_name = self.user.create_user(user_password=user_001_password, **ADMIN_CLIENT)
