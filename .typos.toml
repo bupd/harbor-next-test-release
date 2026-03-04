@@ -53,6 +53,12 @@ extend-exclude = [
 
     # Test fixtures
     "**/testdata/",
+
+    # Upstream SQL migration files (contain SQL aliases like `fo`, `eto` that are not typos)
+    "make/migrations/",
+
+    # Upstream adopter/contributor files with company names and non-English brands
+    "ADOPTERS.md",
 ]
 
 [type.md]
