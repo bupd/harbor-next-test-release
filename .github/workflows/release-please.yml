@@ -216,6 +216,7 @@ jobs:
         env:
           IMAGE: ${{ env.REGISTRY_ADDRESS }}/${{ env.REGISTRY_PROJECT }}/harbor-${{ matrix.component }}
         run: |
+          # shellcheck disable=SC2046
           docker buildx imagetools create \
             -t "${IMAGE}:${VERSION}" \
             $(printf "${IMAGE}@sha256:%s " *)
@@ -264,6 +265,7 @@ jobs:
           IMAGES="core jobservice registryctl exporter portal registry trivy-adapter nginx"
 
           HIGHLIGHTS=""
+          # shellcheck disable=SC2016
           PREV_TAG=$(gh release list --limit 20 --json tagName \
             --jq --arg t "${TAG_NAME}" '[.[] | .tagName | select(. != $t)] | .[0]')
           if [ -n "${PREV_TAG}" ]; then
@@ -301,6 +303,7 @@ jobs:
               echo "## Enterprise Features"
               echo ""
               echo "This release includes the following enterprise enhancements:"
+              # shellcheck disable=SC2001
               while IFS= read -r line; do
                 desc=$(echo "$line" | sed 's/^[>+] [^ ]* *//')
                 [ -n "$desc" ] && echo "- ${desc}"
