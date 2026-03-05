@@ -6,6 +6,14 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.18.1](https://github.com/bupd/harbor-next-test-release/compare/v2.18.0...v2.18.1) (2026-03-05)
+
+
+### Bug Fixes
+
+* Add Release Pipeline to Notable Changes ([#20](https://github.com/bupd/harbor-next-test-release/issues/20)) ([7d10b3d](https://github.com/bupd/harbor-next-test-release/commit/7d10b3d1ac7820069a424972d8594ee65098e7c2))
+* add release pipeline to notable changes in README ([7d10b3d](https://github.com/bupd/harbor-next-test-release/commit/7d10b3d1ac7820069a424972d8594ee65098e7c2))
+
 ## [2.18.0](https://github.com/bupd/harbor-next-test-release/compare/v2.17.0...v2.18.0) (2026-03-05)
 
 
