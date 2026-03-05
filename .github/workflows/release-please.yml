@@ -78,7 +78,7 @@ jobs:
       - name: Initialize stgit stack
         run: stg init
 
-      - name: Fetch enterprise patches
+      - name: Fetch and apply enterprise patches
         if: ${{ vars.PATCHES_REPO != '' }}
         env:
           PATCHES_TOKEN: ${{ secrets.PATCHES_TOKEN }}
@@ -86,19 +86,8 @@ jobs:
           git clone --depth=1 \
             "https://x-access-token:${PATCHES_TOKEN}@github.com/${{ vars.PATCHES_REPO }}" \
             /tmp/patches-repo
-          stg import --series /tmp/patches-repo/8gcr-ee/patches/series
-
-      - name: Apply enterprise patches
-        id: patches
-        run: |
-          COUNT=$(stg series --unapplied --count 2>/dev/null || echo 0)
-          if [ "$COUNT" -eq 0 ]; then
-            echo "applied=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          stg push --all
-          stg series --description --applied > /tmp/applied-patches.txt
-          echo "applied=true" >> "$GITHUB_OUTPUT"
+          stg import -S /tmp/patches-repo/8gcr-ee/patches/series
+          stg series --description > /tmp/applied-patches.txt
 
       - name: Log in to registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
