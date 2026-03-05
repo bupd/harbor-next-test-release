@@ -262,7 +262,41 @@ jobs:
         run: |
           REGISTRY="${REGISTRY_ADDRESS}/${REGISTRY_PROJECT}"
           IMAGES="core jobservice registryctl exporter portal registry trivy-adapter nginx"
+
+          HIGHLIGHTS=""
+          PREV_TAG=$(gh release list --limit 20 --json tagName \
+            --jq --arg t "${TAG_NAME}" '[.[] | .tagName | select(. != $t)] | .[0]')
+          if [ -n "${PREV_TAG}" ]; then
+            SINCE=$(gh release view "${PREV_TAG}" --json createdAt -q '.createdAt')
+            SINCE_DATE="${SINCE%T*}"
+            HIGHLIGHTS=$(gh pr list \
+              --state merged \
+              --base main \
+              --search "merged:>=${SINCE_DATE}" \
+              --json number,title,url,body \
+              --limit 100 \
+              --jq '
+                [.[] | select(.body | test("(?m)^## Release Notes"))] |
+                if length == 0 then ""
+                else
+                  "## Highlights\n\n" +
+                  (map(
+                    "### [#\(.number)](\(.url)) \(.title)\n" +
+                    (.body |
+                      gsub("(?s).*\n## Release Notes\n"; "") |
+                      gsub("(?s)\n## .*"; "") |
+                      gsub("<!--[\\s\\S]*?-->"; "") |
+                      ltrimstr("\n") | rtrimstr("\n")
+                    ) + "\n"
+                  ) | join("\n"))
+                end
+              ')
+          fi
+
           {
+            if [ -n "${HIGHLIGHTS}" ]; then
+              printf '%s\n\n' "${HIGHLIGHTS}"
+            fi
             if [ -f applied-patches.txt ] && [ -s applied-patches.txt ]; then
               echo "## Enterprise Features"
               echo ""
