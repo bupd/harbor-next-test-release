@@ -32,6 +32,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
     env:
       REGISTRY_ADDRESS: ${{ vars.REGISTRY_ADDRESS || '8gears.container-registry.com' }}
       REGISTRY_PROJECT: ${{ vars.REGISTRY_PROJECT || '8gcr' }}
@@ -103,12 +104,9 @@ jobs:
         uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
 
       - name: Sign images
-        env:
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
           for image in core jobservice registryctl exporter portal registry trivy-adapter nginx; do
-            cosign sign --yes --key env://COSIGN_PRIVATE_KEY \
+            cosign sign --yes \
               "${REGISTRY_ADDRESS}/${REGISTRY_PROJECT}/harbor-${image}:${VERSION}"
           done
 
@@ -141,7 +139,10 @@ jobs:
             echo ""
             echo "**Verify an image signature:**"
             echo "\`\`\`sh"
-            echo "cosign verify --key cosign.pub ${REGISTRY}/harbor-core:${TAG_NAME}"
+            echo "cosign verify \\"
+            echo "  --certificate-identity \"https://github.com/${{ github.repository }}/.github/workflows/release-please.yml@refs/heads/main\" \\"
+            echo "  --certificate-oidc-issuer \"https://token.actions.githubusercontent.com\" \\"
+            echo "  ${REGISTRY}/harbor-core:${TAG_NAME}"
             echo "\`\`\`"
             echo ""
             echo "---"
