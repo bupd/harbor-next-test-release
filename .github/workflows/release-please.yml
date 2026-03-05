@@ -32,20 +32,29 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
     env:
-      IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY || '8gears.container-registry.com' }}
-      IMAGE_NAMESPACE: ${{ vars.IMAGE_NAMESPACE || '8gcr' }}
+      REGISTRY_ADDRESS: ${{ vars.REGISTRY_ADDRESS || '8gears.container-registry.com' }}
+      REGISTRY_PROJECT: ${{ vars.REGISTRY_PROJECT || '8gcr' }}
       VERSION: ${{ needs.release-please.outputs.version }}
       TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
 
-      # Capture the release commit SHA upfront so it is baked into binaries
-      # via -ldflags "-X .../version.GitCommit=<sha>".
-      # Passed explicitly to Task as a CLI var so it overrides the Taskfile's
-      # own `git rev-parse` computation.
-      - name: Get build SHA
-        run: echo "BUILD_SHA=$(git rev-parse --short=8 HEAD)" >> "$GITHUB_ENV"
+      - name: Install stgit
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3.4.0
+        with:
+          crate: stgit
+          version: "2.5.5"
+
+      - name: Prepare stgit stack
+        run: |
+          git config user.email "release-bot@users.noreply.github.com"
+          git config user.name "Release Bot"
+          git checkout -b release-build
+          stg init
 
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
@@ -61,36 +70,54 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Fetch and apply enterprise patches
+        if: ${{ vars.PATCHES_REPO != '' }}
+        env:
+          PATCHES_TOKEN: ${{ secrets.PATCHES_TOKEN }}
+        run: |
+          git clone --depth=1 \
+            "https://x-access-token:${PATCHES_TOKEN}@github.com/${{ vars.PATCHES_REPO }}" \
+            /tmp/patches-repo
+          stg import -S /tmp/patches-repo/8gcr-ee/patches/series
+          stg series --description > /tmp/applied-patches.txt
+
       - name: Log in to registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
+          registry: ${{ env.REGISTRY_ADDRESS }}
+          username: ${{ vars.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build and push all images
-        run: task images GIT_COMMIT="$BUILD_SHA"
+        run: task images GIT_COMMIT="${GITHUB_SHA:0:8}"
 
       - name: Install cosign
         uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
 
       - name: Sign images
-        env:
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
           for image in core jobservice registryctl exporter portal registry trivy-adapter nginx; do
-            cosign sign --yes --key env://COSIGN_PRIVATE_KEY \
-              "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/harbor-${image}:${VERSION}"
+            cosign sign --yes \
+              "${REGISTRY_ADDRESS}/${REGISTRY_PROJECT}/harbor-${image}:${VERSION}"
           done
 
       - name: Update release notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          REGISTRY="${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}"
+          REGISTRY="${REGISTRY_ADDRESS}/${REGISTRY_PROJECT}"
           IMAGES="core jobservice registryctl exporter portal registry trivy-adapter nginx"
           {
+            if [ -f /tmp/applied-patches.txt ] && [ -s /tmp/applied-patches.txt ]; then
+              echo "## Enterprise Features"
+              echo ""
+              echo "This release includes the following enterprise enhancements:"
+              while IFS= read -r line; do
+                desc=$(echo "$line" | sed 's/^[>+] [^ ]* *//')
+                [ -n "$desc" ] && echo "- ${desc}"
+              done < /tmp/applied-patches.txt
+              echo ""
+            fi
             echo "## Container Images"
             echo ""
             echo "Multi-arch images (\`linux/amd64\`, \`linux/arm64\`) signed with [cosign](https://github.com/sigstore/cosign)."
@@ -103,7 +130,10 @@ jobs:
             echo ""
             echo "**Verify an image signature:**"
             echo "\`\`\`sh"
-            echo "cosign verify --key cosign.pub ${REGISTRY}/harbor-core:${TAG_NAME}"
+            echo "cosign verify \\"
+            echo "  --certificate-identity \"https://github.com/${{ github.repository }}/.github/workflows/release-please.yml@refs/heads/main\" \\"
+            echo "  --certificate-oidc-issuer \"https://token.actions.githubusercontent.com\" \\"
+            echo "  ${REGISTRY}/harbor-core:${TAG_NAME}"
             echo "\`\`\`"
             echo ""
             echo "---"

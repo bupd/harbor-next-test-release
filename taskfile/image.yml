@@ -64,7 +64,7 @@ tasks:
       vars: [IMAGE_NAME, DOCKERFILE]
     vars:
       OUTPUT: '{{ternary "--push" "--load" (eq .PUSH "true")}}'
-      TAG_PREFIX: '{{ternary (printf "%s/%s/" .IMAGE_REGISTRY .IMAGE_NAMESPACE) "" (eq .PUSH "true")}}'
+      TAG_PREFIX: '{{ternary (printf "%s/%s/" .REGISTRY_ADDRESS .REGISTRY_PROJECT) "" (eq .PUSH "true")}}'
       FULL_TAG: '{{.TAG_PREFIX}}{{.IMAGE_NAME}}:{{.VERSION}}'
     preconditions:
       - sh: '{{if and (ne .PUSH "true") (contains "," .PLATFORMS)}}exit 1{{end}}'
@@ -218,4 +218,4 @@ tasks:
 
   inspect:*:
     desc: "Inspect multi-arch manifest in remote registry"
-    cmd: docker buildx imagetools inspect {{.IMAGE_REGISTRY}}/{{.IMAGE_NAMESPACE}}/{{index .MATCH 0}}:{{.VERSION}}
+    cmd: docker buildx imagetools inspect {{.REGISTRY_ADDRESS}}/{{.REGISTRY_PROJECT}}/{{index .MATCH 0}}:{{.VERSION}}
