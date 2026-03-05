@@ -16,6 +16,16 @@
 - [ ] CI/CD or build changes (`ci:` / `build:`)
 - [ ] Dependencies update (`chore:`)
 
+## Release Notes
+
+<!--
+Optional. Fill in for user-facing changes (new features, breaking changes, deprecations).
+Leave blank for ci:/chore:/refactor: PRs.
+
+This section is automatically extracted and added to the GitHub Release highlights.
+For breaking changes, also add a BREAKING CHANGE: description to the squash commit footer.
+-->
+
 ## Testing
 
 - [ ] Unit tests added/updated
