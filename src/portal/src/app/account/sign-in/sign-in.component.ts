@@ -165,7 +165,7 @@ export class SignInComponent implements AfterViewChecked, OnInit {
         }
     }
 
-    rememberMe(): void {
+    saveRememberMe(): void {
         if (this.rememberMe) {
             if (this.rememberedName !== this.signInCredential.principal) {
                 // Set expire time
@@ -259,7 +259,7 @@ export class SignInComponent implements AfterViewChecked, OnInit {
                 // clear permissions cache
                 this.userPermissionService.clearPermissionCache();
                 // Remember me
-                this.rememberMe();
+                this.saveRememberMe();
 
                 // Redirect to the right router-guard
                 if (
