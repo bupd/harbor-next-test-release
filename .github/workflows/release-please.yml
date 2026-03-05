@@ -33,8 +33,8 @@ jobs:
       contents: write
       packages: write
     env:
-      IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY || '8gears.container-registry.com' }}
-      IMAGE_NAMESPACE: ${{ vars.IMAGE_NAMESPACE || '8gcr' }}
+      REGISTRY_ADDRESS: ${{ vars.REGISTRY_ADDRESS || '8gears.container-registry.com' }}
+      REGISTRY_PROJECT: ${{ vars.REGISTRY_PROJECT || '8gcr' }}
       VERSION: ${{ needs.release-please.outputs.version }}
       TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
     steps:
@@ -92,7 +92,7 @@ jobs:
       - name: Log in to registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
-          registry: ${{ env.IMAGE_REGISTRY }}
+          registry: ${{ env.REGISTRY_ADDRESS }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
@@ -109,14 +109,14 @@ jobs:
         run: |
           for image in core jobservice registryctl exporter portal registry trivy-adapter nginx; do
             cosign sign --yes --key env://COSIGN_PRIVATE_KEY \
-              "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/harbor-${image}:${VERSION}"
+              "${REGISTRY_ADDRESS}/${REGISTRY_PROJECT}/harbor-${image}:${VERSION}"
           done
 
       - name: Update release notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          REGISTRY="${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}"
+          REGISTRY="${REGISTRY_ADDRESS}/${REGISTRY_PROJECT}"
           IMAGES="core jobservice registryctl exporter portal registry trivy-adapter nginx"
           {
             if [ -f /tmp/applied-patches.txt ] && [ -s /tmp/applied-patches.txt ]; then
