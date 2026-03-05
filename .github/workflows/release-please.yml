@@ -62,7 +62,10 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install stgit
-        run: sudo apt-get install -y stgit
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3.4.0
+        with:
+          crate: stgit
+          version: "2.5.5"
 
       - name: Configure git identity
         run: |
@@ -83,8 +86,7 @@ jobs:
           git clone --depth=1 \
             "https://x-access-token:${PATCHES_TOKEN}@github.com/${{ vars.PATCHES_REPO }}" \
             /tmp/patches-repo
-          stg import --series /tmp/patches-repo/8gcr-ee/patches/series \
-                     --directory /tmp/patches-repo/8gcr-ee/patches/
+          stg import --series /tmp/patches-repo/8gcr-ee/patches/series
 
       - name: Apply enterprise patches
         id: patches
