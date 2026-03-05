@@ -6,6 +6,14 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.18.2](https://github.com/bupd/harbor-next-test-release/compare/v2.18.1...v2.18.2) (2026-03-05)
+
+
+### Bug Fixes
+
+* fix oxford comma in README description ([122404d](https://github.com/bupd/harbor-next-test-release/commit/122404d996aed0e4ff29550ab5d4cf3f595c0831))
+* Oxford Comma in README Description ([#22](https://github.com/bupd/harbor-next-test-release/issues/22)) ([122404d](https://github.com/bupd/harbor-next-test-release/commit/122404d996aed0e4ff29550ab5d4cf3f595c0831))
+
 ## [2.18.1](https://github.com/bupd/harbor-next-test-release/compare/v2.18.0...v2.18.1) (2026-03-05)
 
 
