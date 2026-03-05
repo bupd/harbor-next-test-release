@@ -6,6 +6,44 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.16.0](https://github.com/bupd/harbor-next-test-release/compare/v2.15.1...v2.16.0) (2026-03-05)
+
+
+### Features
+
+* add podman fallback for image builds ([f483bb1](https://github.com/bupd/harbor-next-test-release/commit/f483bb1f7f7160e5b07402a0e764cff72cb6465c))
+* Full OSS Template Adoption - Workflows, Hooks, and Issue Templates ([df9eaba](https://github.com/bupd/harbor-next-test-release/commit/df9eaba463824e71bf71698dd1573a2b8069e1ed))
+
+
+### Bug Fixes
+
+* correct typos across src, api, and tests; update typos config ([2a4610e](https://github.com/bupd/harbor-next-test-release/commit/2a4610eca4660b68efc1df24e35f52a8b504393f))
+* **portal:** rename rememberMe method to resolve duplicate identifier ([901e09b](https://github.com/bupd/harbor-next-test-release/commit/901e09b80bc82cce23a995024368af6b4a8a1203))
+* revert tests/ changes, add to typos exclusion ([d53c566](https://github.com/bupd/harbor-next-test-release/commit/d53c566d78f672afb8157f6813fffdecdce4e446))
+* use multi-stage perms fix for shell-less DHI nginx image ([f67ca36](https://github.com/bupd/harbor-next-test-release/commit/f67ca367a6e26849bc15a43da43db095129097bc))
+
+
+### Code Refactoring
+
+* rename IMAGE_REGISTRY/IMAGE_NAMESPACE to REGISTRY_ADDRESS/REGISTRY_PROJECT ([5622f35](https://github.com/bupd/harbor-next-test-release/commit/5622f35f7aa176bc433fedb5a8ae77bff52b200a))
+
+
+### Documentation
+
+* add project CLAUDE.md with commands, workflow, and structure ([06c5cee](https://github.com/bupd/harbor-next-test-release/commit/06c5cee3bc5e1f29af722da3ab84c1ca7120f227))
+
+## [2.15.1](https://github.com/bupd/harbor-next-test-release/compare/v2.15.0...v2.15.1) (2026-03-03)
+
+
+### Bug Fixes
+
+* move bootstrap-sha to config, clean manifest ([143daea](https://github.com/bupd/harbor-next-test-release/commit/143daea9d18184a8a07886025503b2d11e280e28))
+
+
+### CI/CD
+
+* add release-please pipeline ([15264a6](https://github.com/bupd/harbor-next-test-release/commit/15264a6742e13ec44fdeaeb5f664ca29c7f8f993))
+
 ## v2.14.x
 
 ### v2.14.2 (2026-01-15)
