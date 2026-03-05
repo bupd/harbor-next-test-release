@@ -119,6 +119,17 @@ Namespace aliases: `b:` (build), `t:` (test), `img:` (image), `d:` (dev).
 
 See [devenv/README.md](devenv/README.md) for detailed development environment commands.
 
+## Contributing
+
+We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR.
+
+Key rules:
+- PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/) format (`feat:`, `fix:`, `ci:`, etc.)
+- Always merge PRs using **Squash and merge** - never "Create a merge commit"
+- All commits require DCO sign-off (`git commit -s`)
+
+Releases are automated via release-please. A `feat:` or `fix:` squash merge to `main` automatically opens a release PR. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
+
 ## OCI Distribution Conformance Tests
 
 Check the OCI distribution conformance tests [report](https://storage.googleapis.com/harbor-conformance-test/report.html) of Harbor.
