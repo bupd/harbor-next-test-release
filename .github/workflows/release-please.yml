@@ -40,6 +40,13 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
+      # Capture the release commit SHA upfront so it is baked into binaries
+      # via -ldflags "-X .../version.GitCommit=<sha>".
+      # Passed explicitly to Task as a CLI var so it overrides the Taskfile's
+      # own `git rev-parse` computation.
+      - name: Get build SHA
+        run: echo "BUILD_SHA=$(git rev-parse --short=8 HEAD)" >> "$GITHUB_ENV"
+
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version-file: src/go.mod
@@ -54,57 +61,6 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Record the public HEAD SHA before any patches are applied.
-      # After the commit+reset cycle below, git rev-parse HEAD still returns this
-      # SHA - which is what gets baked into the GIT_COMMIT field of every binary.
-      - name: Record public HEAD SHA
-        run: echo "PUBLIC_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-
-      - name: Configure git identity
-        run: |
-          git config user.email "release-bot@users.noreply.github.com"
-          git config user.name "Release Bot"
-
-      # Pull enterprise patches from a private repository into patches/ so the
-      # apply step below handles everything in one place.
-      - name: Fetch enterprise patches
-        if: ${{ vars.PATCHES_REPO != '' }}
-        env:
-          PATCHES_TOKEN: ${{ secrets.PATCHES_TOKEN }}
-        run: |
-          git clone --depth=1 \
-            "https://x-access-token:${PATCHES_TOKEN}@github.com/${{ vars.PATCHES_REPO }}" \
-            /tmp/enterprise-patches
-          mkdir -p patches
-          # Copy patch files (skip if none found)
-          ls /tmp/enterprise-patches/*.patch 1>/dev/null 2>&1 \
-            && cp /tmp/enterprise-patches/*.patch patches/ || true
-          # Copy feature manifest if present
-          cp /tmp/enterprise-patches/MANIFEST patches/MANIFEST.enterprise 2>/dev/null || true
-
-      # Apply all patches from patches/, create a transient local commit, then
-      # immediately reset it. After the reset, HEAD == PUBLIC_SHA again, so
-      # `git rev-parse HEAD` in the Taskfile returns the public SHA - but the
-      # patched source is still present in the working tree for the build.
-      - name: Apply patches (commit + reset)
-        id: patches
-        run: |
-          if ! ls patches/*.patch 1>/dev/null 2>&1; then
-            echo "No patches found, skipping."
-            echo "applied=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "Patches to apply:"
-          ls patches/*.patch
-
-          git apply --3way patches/*.patch
-          git add -A
-          git commit -m "temp: apply enterprise patches for ${TAG_NAME}"
-          # Reset HEAD back to the public SHA; patched source stays in working tree
-          git reset HEAD~1
-          echo "applied=true" >> "$GITHUB_OUTPUT"
-
       - name: Log in to registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
@@ -112,10 +68,8 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      # task images compiles Go binaries then builds multi-arch Docker images.
-      # GIT_COMMIT in binaries == PUBLIC_SHA because HEAD was reset above.
       - name: Build and push all images
-        run: task images
+        run: task images GIT_COMMIT="$BUILD_SHA"
 
       - name: Install cosign
         uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
@@ -130,43 +84,13 @@ jobs:
               "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/harbor-${image}:${VERSION}"
           done
 
-      # Prepend an enterprise features section and an image reference table
-      # to the release notes that release-please already generated.
       - name: Update release notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           REGISTRY="${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}"
           IMAGES="core jobservice registryctl exporter portal registry trivy-adapter nginx"
-
-          # Collect enterprise feature descriptions.
-          # Precedence: patches/MANIFEST.enterprise > patches/MANIFEST > patch filenames.
-          FEATURES=""
-          for manifest in patches/MANIFEST.enterprise patches/MANIFEST; do
-            if [ -f "$manifest" ]; then
-              while IFS= read -r line; do
-                trimmed=$(echo "$line" | sed 's/^[[:space:]]*//')
-                [ -n "$trimmed" ] && FEATURES="${FEATURES}\n- ${trimmed}"
-              done < "$manifest"
-              break
-            fi
-          done
-          if [ -z "$FEATURES" ] && ls patches/*.patch 1>/dev/null 2>&1; then
-            for f in patches/*.patch; do
-              name=$(basename "$f" .patch | tr '-_' ' ')
-              FEATURES="${FEATURES}\n- ${name}"
-            done
-          fi
-
           {
-            if [ -n "$FEATURES" ]; then
-              echo "## Enterprise Features"
-              echo ""
-              echo "This release includes the following enterprise enhancements:"
-              printf "%b\n" "${FEATURES}"
-              echo ""
-            fi
-
             echo "## Container Images"
             echo ""
             echo "Multi-arch images (\`linux/amd64\`, \`linux/arm64\`) signed with [cosign](https://github.com/sigstore/cosign)."
