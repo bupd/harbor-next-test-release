@@ -17,9 +17,96 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
       version: ${{ steps.release.outputs.version }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@c3fc4de07084f75a2b61a5b933069bda6edf3d5c # v4
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  publish-images:
+    name: Build, Sign, and Push Release Images
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY || '8gears.container-registry.com' }}
+      IMAGE_NAMESPACE: ${{ vars.IMAGE_NAMESPACE || '8gcr' }}
+      VERSION: ${{ needs.release-please.outputs.version }}
+      TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      # Capture the release commit SHA upfront so it is baked into binaries
+      # via -ldflags "-X .../version.GitCommit=<sha>".
+      # Passed explicitly to Task as a CLI var so it overrides the Taskfile's
+      # own `git rev-parse` computation.
+      - name: Get build SHA
+        run: echo "BUILD_SHA=$(git rev-parse --short=8 HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: src/go.mod
+          cache-dependency-path: src/go.sum
+
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - uses: arduino/setup-task@24c5e13bce349197642746563945fcdf9355e8f4 # v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to registry
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push all images
+        run: task images GIT_COMMIT="$BUILD_SHA"
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
+
+      - name: Sign images
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: |
+          for image in core jobservice registryctl exporter portal registry trivy-adapter nginx; do
+            cosign sign --yes --key env://COSIGN_PRIVATE_KEY \
+              "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/harbor-${image}:${VERSION}"
+          done
+
+      - name: Update release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REGISTRY="${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}"
+          IMAGES="core jobservice registryctl exporter portal registry trivy-adapter nginx"
+          {
+            echo "## Container Images"
+            echo ""
+            echo "Multi-arch images (\`linux/amd64\`, \`linux/arm64\`) signed with [cosign](https://github.com/sigstore/cosign)."
+            echo ""
+            echo "| Image | Reference |"
+            echo "|-------|-----------|"
+            for image in $IMAGES; do
+              echo "| \`harbor-${image}\` | \`${REGISTRY}/harbor-${image}:${TAG_NAME}\` |"
+            done
+            echo ""
+            echo "**Verify an image signature:**"
+            echo "\`\`\`sh"
+            echo "cosign verify --key cosign.pub ${REGISTRY}/harbor-core:${TAG_NAME}"
+            echo "\`\`\`"
+            echo ""
+            echo "---"
+            echo ""
+            gh release view "${TAG_NAME}" --json body -q .body
+          } | gh release edit "${TAG_NAME}" --notes-file -

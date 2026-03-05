@@ -30,6 +30,10 @@ vars:
   IMAGE_PLATFORMS: '{{.IMAGE_PLATFORMS | default "linux/amd64,linux/arm64"}}'
   IMAGE_BUILDER: "harbor-multiarch"
 
+  # Container engine detection: prefer Docker buildx, fallback to Podman
+  CONTAINER_ENGINE:
+    sh: 'docker buildx version 2>&1 | grep -q "github.com/docker/buildx" && echo "docker" || (podman --version >/dev/null 2>&1 && echo "podman" || echo "unknown")'
+
   # CI detection (shared by build.yml and image.yml)
   IS_CI:
     sh: '[ -n "${CI:-}${GITHUB_ACTIONS:-}${GITLAB_CI:-}${JENKINS_URL:-}" ] && echo "true" || echo "false"'
