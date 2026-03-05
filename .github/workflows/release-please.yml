@@ -112,7 +112,7 @@ jobs:
         run: git apply enterprise.patch
 
       - name: Load versions
-        run: cat versions.env >> "$GITHUB_ENV"
+        run: grep -E '^[A-Z_]+=' versions.env >> "$GITHUB_ENV"
 
       - name: Setup Go
         if: ${{ contains(fromJSON('["core","jobservice","registryctl","exporter"]'), matrix.component) }}
