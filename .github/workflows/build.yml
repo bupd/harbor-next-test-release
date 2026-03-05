@@ -27,6 +27,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+          -c max_connections=200
       redis:
         image: redis:7-alpine
         ports:
@@ -78,7 +79,7 @@ jobs:
           pkgs=$(go list ./... | grep -vE \
             '/controller/ldap$|/core/auth/ldap$|/pkg/ldap$|/core/api$|/core/controllers$|/pkg/proxy/connection$|/pkg/token$|/server/middleware/security$|/controller/systeminfo$|/pkg/jobmonitor$|/jobservice/runner$|/controller/usergroup/test$|/pkg/scan/dao/scanner$|/pkg/scan/export$|/pkg/scan/dao/scan$|/pkg/scan/postprocessors$|/pkg/systemartifact$' \
             | tr '\n' ' ')
-          go test -v -race -cover $pkgs
+          go test -v -race -cover -p 4 $pkgs
 
       - name: Lint API spec
         run: task test:lint:api
