@@ -20,6 +20,7 @@ We're developing Harbor Next as a [community proposal](https://github.com/goharb
 ## Notable Changes in Harbor Next
 - Contributor/Maintainer ladder automation
 - Continuous delivery
+- Automated release pipeline with multi-arch image builds
 - Easy Contributor onboarding with out of the box dev environments
 - Multi-architecture artifacts
 - Scratch images with minimal size and attack surface.
