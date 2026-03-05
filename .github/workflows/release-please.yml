@@ -61,6 +61,43 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install stgit
+        run: sudo apt-get install -y stgit
+
+      - name: Configure git identity
+        run: |
+          git config user.email "release-bot@users.noreply.github.com"
+          git config user.name "Release Bot"
+
+      - name: Create release branch
+        run: git checkout -b release-build
+
+      - name: Initialize stgit stack
+        run: stg init
+
+      - name: Fetch enterprise patches
+        if: ${{ vars.PATCHES_REPO != '' }}
+        env:
+          PATCHES_TOKEN: ${{ secrets.PATCHES_TOKEN }}
+        run: |
+          git clone --depth=1 \
+            "https://x-access-token:${PATCHES_TOKEN}@github.com/${{ vars.PATCHES_REPO }}" \
+            /tmp/patches-repo
+          stg import --series /tmp/patches-repo/8gcr-ee/patches/series \
+                     --directory /tmp/patches-repo/8gcr-ee/patches/
+
+      - name: Apply enterprise patches
+        id: patches
+        run: |
+          COUNT=$(stg series --unapplied --count 2>/dev/null || echo 0)
+          if [ "$COUNT" -eq 0 ]; then
+            echo "applied=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          stg push --all
+          stg series --description --applied > /tmp/applied-patches.txt
+          echo "applied=true" >> "$GITHUB_OUTPUT"
+
       - name: Log in to registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
@@ -91,6 +128,16 @@ jobs:
           REGISTRY="${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}"
           IMAGES="core jobservice registryctl exporter portal registry trivy-adapter nginx"
           {
+            if [ -f /tmp/applied-patches.txt ] && [ -s /tmp/applied-patches.txt ]; then
+              echo "## Enterprise Features"
+              echo ""
+              echo "This release includes the following enterprise enhancements:"
+              while IFS= read -r line; do
+                desc=$(echo "$line" | sed 's/^[>+] [^ ]* *//')
+                [ -n "$desc" ] && echo "- ${desc}"
+              done < /tmp/applied-patches.txt
+              echo ""
+            fi
             echo "## Container Images"
             echo ""
             echo "Multi-arch images (\`linux/amd64\`, \`linux/arm64\`) signed with [cosign](https://github.com/sigstore/cosign)."
