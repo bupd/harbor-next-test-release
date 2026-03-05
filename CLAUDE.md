@@ -36,6 +36,8 @@ gh pr create
 PR title must follow Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, `ci:`, `chore:`, etc.
 All commits require DCO sign-off: `git commit -s`.
 
+**Merging PRs:** Always use **Squash and merge**. Never "Create a merge commit" or "Rebase and merge". Non-squash merges create `Merge pull request #N` commits that break release-please's commit parser.
+
 ## Release Process
 
 Releases are automated via release-please:
@@ -50,6 +52,8 @@ Version bump rules:
 - `feat!:` or `BREAKING CHANGE:` footer -> major
 
 `ci:`, `build:`, `chore:`, `test:` commits are hidden from release notes.
+
+**exclude-paths:** Commits that only touch `.github/`, `docs/`, or `tests/` do NOT trigger a version bump even with `feat:` or `fix:`. Use `ci:` for CI-only changes to avoid misleading PR titles.
 
 ## File Structure
 
