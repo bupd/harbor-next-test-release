@@ -61,7 +61,7 @@ jobs:
             /tmp/patches-repo
           stg import -S /tmp/patches-repo/8gcr-ee/patches/series
           stg series --description > applied-patches.txt
-          git diff ${{ needs.release-please.outputs.tag_name }}..HEAD > enterprise.patch
+          git diff --binary ${{ needs.release-please.outputs.tag_name }}..HEAD > enterprise.patch
           echo "has_patches=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload enterprise patches
