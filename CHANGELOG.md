@@ -6,6 +6,14 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.18.0](https://github.com/bupd/harbor-next-test-release/compare/v2.17.0...v2.18.0) (2026-03-05)
+
+
+### Features
+
+* Add Subscription Menu With Chargebee Integration ([#12](https://github.com/bupd/harbor-next-test-release/issues/12)) ([2e96dfa](https://github.com/bupd/harbor-next-test-release/commit/2e96dfa2130666c38885bc8b5dedbcf78f52a9c2))
+* Randomise Seconds When Scheduling Jobs ([#8](https://github.com/bupd/harbor-next-test-release/issues/8)) ([d67d668](https://github.com/bupd/harbor-next-test-release/commit/d67d6687015f0433f54a2e5d20c1fa8ca2b3f2df))
+
 ## [2.17.0](https://github.com/bupd/harbor-next-test-release/compare/v2.16.0...v2.17.0) (2026-03-05)
 
 
