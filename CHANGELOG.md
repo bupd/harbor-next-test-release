@@ -6,6 +6,26 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.17.0](https://github.com/bupd/harbor-next-test-release/compare/v2.16.0...v2.17.0) (2026-03-05)
+
+
+### Features
+
+* Increase Audit Log Max Page Size to 10000 ([#10](https://github.com/bupd/harbor-next-test-release/issues/10)) ([c3e1f39](https://github.com/bupd/harbor-next-test-release/commit/c3e1f398f8db46e2f4797e56e7619913157b9d79))
+* **portal:** add repository-level pull command to artifact list tab ([956e5c0](https://github.com/bupd/harbor-next-test-release/commit/956e5c00b0462477745e83ef8c6688de766b5704))
+
+
+### Bug Fixes
+
+* Allow Negative Serial Numbers in x509 Certificates ([#9](https://github.com/bupd/harbor-next-test-release/issues/9)) ([c779fb9](https://github.com/bupd/harbor-next-test-release/commit/c779fb958b216a99c6add2269446d3f302bcf6d2))
+
+
+### Documentation
+
+* add contributing guide with PR and merge workflow ([dcc9f2c](https://github.com/bupd/harbor-next-test-release/commit/dcc9f2c11c61bd1418aaf1acdcd70b66909655ae))
+* add contributing section to README ([9c73af7](https://github.com/bupd/harbor-next-test-release/commit/9c73af7ab3e0aefcdf37d63cc98c7a40b65fd702))
+* add squash merge and exclude-paths rules to CLAUDE.md ([e87fbd9](https://github.com/bupd/harbor-next-test-release/commit/e87fbd933a343e72d14318eace053b6b413e809d))
+
 ## [2.16.0](https://github.com/bupd/harbor-next-test-release/compare/v2.15.1...v2.16.0) (2026-03-05)
 
 
