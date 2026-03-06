@@ -126,7 +126,8 @@ devenv/                         # Docker Compose for local development
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `build.yml` | PRs + push to main | Unit tests (with PostgreSQL + Redis), API lint, binary compilation |
+| `test.yml` | PRs + push to main | `task test:quick` - unit tests (PostgreSQL + Redis) and API lint |
+| `build.yml` | PRs + push to main | `task build` - compile all Go binaries (linux/amd64) |
 | `release-please.yml` | Push to main | Release PR automation; on release: multi-arch image build, sign, publish |
 | `pr-title.yml` | PR opened/edited | Enforce conventional commit format on PR titles |
 | `lint-actions.yml` | PRs + push to main (workflow files only) | Verify all GitHub Actions are pinned to full commit SHAs |
@@ -136,14 +137,7 @@ devenv/                         # Docker Compose for local development
 | `scorecard.yml` | Weekly + push to main | OpenSSF Scorecard security analysis |
 | `welcome.yml` | First issue/PR | Welcome message for new contributors |
 
-### Build Workflow Details (`build.yml`)
-
-The `test` job runs with PostgreSQL 16 and Redis 7 service containers. It:
-1. Generates API code (`task build:gen-apis`)
-2. Runs unit tests with race detection (`go test -race`), excluding packages that need LDAP, full Harbor stack, or cert files
-3. Lints the API spec (`task test:lint:api`)
-
-The `build` job (depends on test) compiles all Go binaries for `linux/amd64` to verify compilation.
+Test and build run as separate parallel workflows for faster CI feedback. Both map 1:1 to local taskfile commands.
 
 ## Local Git Hooks (lefthook)
 
