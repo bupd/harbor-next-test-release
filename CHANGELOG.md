@@ -6,6 +6,14 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.19.2](https://github.com/bupd/harbor-next-test-release/compare/v2.19.1...v2.19.2) (2026-03-06)
+
+
+### Bug Fixes
+
+* trailing whitespace and missing spaces in README ([5353db7](https://github.com/bupd/harbor-next-test-release/commit/5353db79a7d72c87d62f7c17273010249cfd910c))
+* Trailing Whitespace and Missing Spaces in README ([#30](https://github.com/bupd/harbor-next-test-release/issues/30)) ([5353db7](https://github.com/bupd/harbor-next-test-release/commit/5353db79a7d72c87d62f7c17273010249cfd910c))
+
 ## [2.19.1](https://github.com/bupd/harbor-next-test-release/compare/v2.19.0...v2.19.1) (2026-03-06)
 
 
