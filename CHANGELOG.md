@@ -6,6 +6,19 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.19.1](https://github.com/bupd/harbor-next-test-release/compare/v2.19.0...v2.19.1) (2026-03-06)
+
+
+### Features
+
+* Cross-compile Trivy Adapter and Fix Release Notes ([#26](https://github.com/bupd/harbor-next-test-release/issues/26)) ([5bcccb5](https://github.com/bupd/harbor-next-test-release/commit/5bcccb5a6224d887f508e86d0f750dfd46b29b71))
+
+
+### Documentation
+
+* add cross-compiled binaries to notable changes ([b714add](https://github.com/bupd/harbor-next-test-release/commit/b714addb1ec9ccc079b45b47c1025b5393a2b08e))
+* Add Cross-compiled Binaries to Notable Changes ([#28](https://github.com/bupd/harbor-next-test-release/issues/28)) ([b714add](https://github.com/bupd/harbor-next-test-release/commit/b714addb1ec9ccc079b45b47c1025b5393a2b08e))
+
 ## [2.19.0](https://github.com/bupd/harbor-next-test-release/compare/v2.18.2...v2.19.0) (2026-03-06)
 
 
