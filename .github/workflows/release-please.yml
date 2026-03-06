@@ -284,7 +284,7 @@ jobs:
             echo "| Image | Reference |"
             echo "|-------|-----------|"
             for image in $IMAGES; do
-              echo "| \`harbor-${image}\` | \`${REGISTRY}/harbor-${image}:${TAG_NAME}\` |"
+              echo "| \`harbor-${image}\` | \`${REGISTRY}/harbor-${image}:${VERSION}\` |"
             done
             echo ""
             echo "**Verify an image signature:**"
@@ -292,7 +292,7 @@ jobs:
             echo "cosign verify \\"
             echo "  --certificate-identity \"https://github.com/${{ github.repository }}/.github/workflows/release-please.yml@refs/heads/main\" \\"
             echo "  --certificate-oidc-issuer \"https://token.actions.githubusercontent.com\" \\"
-            echo "  ${REGISTRY}/harbor-core:${TAG_NAME}"
+            echo "  ${REGISTRY}/harbor-core:${VERSION}"
             echo "\`\`\`"
             echo ""
             echo "---"
