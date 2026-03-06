@@ -235,9 +235,8 @@ jobs:
           IMAGES="core jobservice registryctl exporter portal registry trivy-adapter nginx"
 
           HIGHLIGHTS=""
-          # shellcheck disable=SC2016
           PREV_TAG=$(gh release list --limit 20 --json tagName \
-            --jq --arg t "${TAG_NAME}" '[.[] | .tagName | select(. != $t)] | .[0]')
+            --jq "[.[] | .tagName | select(. != \"${TAG_NAME}\")] | .[0]")
           if [ -n "${PREV_TAG}" ]; then
             SINCE=$(gh release view "${PREV_TAG}" --json createdAt -q '.createdAt')
             SINCE_DATE="${SINCE%T*}"
