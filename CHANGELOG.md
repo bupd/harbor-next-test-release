@@ -6,6 +6,14 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.19.0](https://github.com/bupd/harbor-next-test-release/compare/v2.18.2...v2.19.0) (2026-03-06)
+
+
+### Features
+
+* cross-compile registry and portal for faster multi-arch builds ([5571ef7](https://github.com/bupd/harbor-next-test-release/commit/5571ef784bfff0fad5093184b9eb2d69118e5a54))
+* Cross-compile Registry and Portal for Faster Multi-arch Builds ([#24](https://github.com/bupd/harbor-next-test-release/issues/24)) ([5571ef7](https://github.com/bupd/harbor-next-test-release/commit/5571ef784bfff0fad5093184b9eb2d69118e5a54))
+
 ## [2.18.2](https://github.com/bupd/harbor-next-test-release/compare/v2.18.1...v2.18.2) (2026-03-05)
 
 
