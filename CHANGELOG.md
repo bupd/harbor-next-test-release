@@ -6,6 +6,13 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.19.3](https://github.com/bupd/harbor-next-test-release/compare/v2.19.2...v2.19.3) (2026-03-06)
+
+
+### Bug Fixes
+
+* Nil Pointer Panic and Shared State in Event Handler Tests ([#32](https://github.com/bupd/harbor-next-test-release/issues/32)) ([e4dc4af](https://github.com/bupd/harbor-next-test-release/commit/e4dc4af72a938e43c16f8158afb6b2142af1f34d))
+
 ## [2.19.2](https://github.com/bupd/harbor-next-test-release/compare/v2.19.1...v2.19.2) (2026-03-06)
 
 
