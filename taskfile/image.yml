@@ -38,11 +38,8 @@ tasks:
   buildx:setup:
     internal: true
     run: once
-    preconditions:
-      - sh: '[ "{{.CONTAINER_ENGINE}}" = "docker" ]'
-        msg: "buildx:setup requires Docker (detected: {{.CONTAINER_ENGINE}})"
     status:
-      - docker buildx inspect {{.IMAGE_BUILDER}} >/dev/null 2>&1
+      - '[ "{{.CONTAINER_ENGINE}}" != "docker" ] || docker buildx inspect {{.IMAGE_BUILDER}} >/dev/null 2>&1'
     cmds:
       - docker buildx create --name {{.IMAGE_BUILDER}} --driver docker-container --bootstrap
       - docker buildx use {{.IMAGE_BUILDER}}
@@ -60,57 +57,32 @@ tasks:
   _build:
     internal: true
     label: 'image:{{.IMAGE_NAME}}'
+    deps: [buildx:setup]
     requires:
       vars: [IMAGE_NAME, DOCKERFILE]
     vars:
       OUTPUT: '{{ternary "--push" "--load" (eq .PUSH "true")}}'
       TAG_PREFIX: '{{ternary (printf "%s/%s/" .REGISTRY_ADDRESS .REGISTRY_PROJECT) "" (eq .PUSH "true")}}'
       FULL_TAG: '{{.TAG_PREFIX}}{{.IMAGE_NAME}}:{{.VERSION}}'
+      BUILD_CMD: '{{if eq .CONTAINER_ENGINE "docker"}}docker buildx build --builder {{.IMAGE_BUILDER}}{{else}}podman build{{end}}'
+      OUTPUT_FLAG: '{{if eq .CONTAINER_ENGINE "docker"}}{{.OUTPUT}}{{end}}'
     preconditions:
       - sh: '{{if and (ne .PUSH "true") (contains "," .PLATFORMS)}}exit 1{{end}}'
         msg: "PUSH=false requires single platform (--load limitation)"
       - sh: '[ "{{.CONTAINER_ENGINE}}" != "unknown" ]'
         msg: "No container engine found. Install Docker or Podman."
     cmds:
-      - task: '{{if eq .CONTAINER_ENGINE "docker"}}_build:docker{{else}}_build:podman{{end}}'
-        vars:
-          IMAGE_NAME: '{{.IMAGE_NAME}}'
-          DOCKERFILE: '{{.DOCKERFILE}}'
-          BUILD_ARGS: '{{.BUILD_ARGS}}'
-          FULL_TAG: '{{.FULL_TAG}}'
-
-  _build:docker:
-    internal: true
-    deps: [buildx:setup]
-    requires:
-      vars: [IMAGE_NAME, DOCKERFILE, FULL_TAG]
-    cmd: >-
-      docker buildx build
-      --builder {{.IMAGE_BUILDER}}
-      --platform {{.PLATFORMS}}
-      --build-arg LPROBE_VERSION={{.LPROBE_VERSION}}
-      --build-arg ALPINE_VERSION={{.ALPINE_VERSION}}
-      {{.BUILD_ARGS}}
-      -t {{.FULL_TAG}}
-      -f dockerfile/{{.DOCKERFILE}}
-      {{.OUTPUT}}
-      .
-
-  _build:podman:
-    internal: true
-    requires:
-      vars: [IMAGE_NAME, DOCKERFILE, FULL_TAG]
-    cmds:
       - >-
-        podman build
+        {{.BUILD_CMD}}
         --platform {{.PLATFORMS}}
         --build-arg LPROBE_VERSION={{.LPROBE_VERSION}}
         --build-arg ALPINE_VERSION={{.ALPINE_VERSION}}
         {{.BUILD_ARGS}}
         -t {{.FULL_TAG}}
         -f dockerfile/{{.DOCKERFILE}}
+        {{.OUTPUT_FLAG}}
         .
-      - '{{if eq .PUSH "true"}}podman push {{.FULL_TAG}}{{end}}'
+      - cmd: '{{if and (eq .CONTAINER_ENGINE "podman") (eq .PUSH "true")}}podman push {{.FULL_TAG}}{{else}}true{{end}}'
 
   _build-binaries:
     internal: true
