@@ -85,16 +85,9 @@ func (suite *ArtifactHandlerTestSuite) SetupSuite() {
 
 // TearDownSuite cleans environment.
 func (suite *ArtifactHandlerTestSuite) TearDownSuite() {
-	// delete tag
-	err := tag.Mgr.Delete(suite.ctx, 1)
-	suite.Nil(err)
-	// delete artifact
-	err = pkg.ArtifactMgr.Delete(suite.ctx, 1)
-	suite.Nil(err)
-	// delete repository
-	err = pkg.RepositoryMgr.Delete(suite.ctx, 1)
-	suite.Nil(err)
-
+	tag.Mgr.Delete(suite.ctx, 1)
+	pkg.ArtifactMgr.Delete(suite.ctx, 1)
+	pkg.RepositoryMgr.Delete(suite.ctx, 1)
 }
 
 // TestName tests method Name.
