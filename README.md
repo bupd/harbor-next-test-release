@@ -21,6 +21,7 @@ We're developing Harbor Next as a [community proposal](https://github.com/goharb
 - Contributor/Maintainer ladder automation
 - Continuous delivery
 - Automated release pipeline with multi-arch image builds
+- Cross-compiled Go binaries for faster CI builds
 - Easy Contributor onboarding with out of the box dev environments
 - Multi-architecture artifacts
 - Scratch images with minimal size and attack surface.
