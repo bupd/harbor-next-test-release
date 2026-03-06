@@ -151,13 +151,17 @@ func (suite *ArtifactHandlerTestSuite) TestOnPull() {
 	// wait for db update
 	suite.Eventually(func() bool {
 		art, err = pkg.ArtifactMgr.Get(suite.ctx, 1)
-		suite.Nil(err)
+		if err != nil {
+			return false
+		}
 		return art.PullTime.After(lastPullTime)
 	}, 3*asyncFlushDuration, asyncFlushDuration/2, "wait for pull_time async update")
 
 	suite.Eventually(func() bool {
 		repository, err = pkg.RepositoryMgr.Get(suite.ctx, 1)
-		suite.Nil(err)
+		if err != nil {
+			return false
+		}
 		return int64(2) == repository.PullCount
 	}, 3*asyncFlushDuration, asyncFlushDuration/2, "wait for pull_count async update")
 }
