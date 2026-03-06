@@ -6,6 +6,25 @@ This changelog mirrors [GitHub Releases](https://github.com/container-registry/h
 
 ---
 
+## [2.20.0](https://github.com/bupd/harbor-next-test-release/compare/v2.19.3...v2.20.0) (2026-03-06)
+
+
+### Features
+
+* Add Conditional Immutability Rules Compatible with Retention Policy ([#6](https://github.com/bupd/harbor-next-test-release/issues/6)) ([e0724fc](https://github.com/bupd/harbor-next-test-release/commit/e0724fc73c9cc61799142c8947e970aa2b6f68b0))
+* add LDAP Admin Filter ([#7](https://github.com/bupd/harbor-next-test-release/issues/7)) ([e4dc96c](https://github.com/bupd/harbor-next-test-release/commit/e4dc96c3644ea8e32f72f2d515ea83907ed4b55d))
+
+
+### Bug Fixes
+
+* proxy cache even when remote does not exist ([62b206e](https://github.com/bupd/harbor-next-test-release/commit/62b206ed740f61c386a5e9a964bf595f0a97a58a))
+* Proxy Cache Fallback Local - Even When Remote Does Not Exist ([#11](https://github.com/bupd/harbor-next-test-release/issues/11)) ([62b206e](https://github.com/bupd/harbor-next-test-release/commit/62b206ed740f61c386a5e9a964bf595f0a97a58a))
+
+
+### Documentation
+
+* Update Pipeline and Release Documentation ([#35](https://github.com/bupd/harbor-next-test-release/issues/35)) ([512d008](https://github.com/bupd/harbor-next-test-release/commit/512d0081f54492a6046f49e763308db2800e8e77))
+
 ## [2.19.3](https://github.com/bupd/harbor-next-test-release/compare/v2.19.2...v2.19.3) (2026-03-06)
 
 
