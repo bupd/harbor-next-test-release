@@ -20,7 +20,7 @@ We're developing Harbor Next as a [community proposal](https://github.com/goharb
 ## Notable Changes in Harbor Next
 - Contributor/Maintainer ladder automation
 - Continuous delivery
-- Automated release pipeline with multi-arch image builds
+- Automated release pipeline with multi-arch image builds and cosign signing
 - Cross-compiled Go binaries for faster CI builds
 - Easy Contributor onboarding with out of the box dev environments
 - Multi-architecture artifacts
@@ -130,7 +130,19 @@ Key rules:
 - Always merge PRs using **Squash and merge** - never "Create a merge commit"
 - All commits require DCO sign-off (`git commit -s`)
 
-Releases are automated via release-please. A `feat:` or `fix:` squash merge to `main` automatically opens a release PR. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
+### Release Pipeline
+
+Releases are fully automated via [release-please](https://github.com/googleapis/release-please):
+
+1. A `feat:` or `fix:` squash merge to `main` triggers release-please to open a release PR
+2. Merging the release PR creates a GitHub Release with tag `vX.Y.Z`
+3. The release pipeline builds multi-arch images (`linux/amd64`, `linux/arm64`) for all 8 components
+4. Images are signed with [cosign](https://github.com/sigstore/cosign) (keyless OIDC via GitHub Actions)
+5. Release notes are enriched with PR highlights, container image references, and verification commands
+
+Components: `core`, `jobservice`, `registryctl`, `exporter`, `portal`, `registry`, `trivy-adapter`, `nginx`.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, version bump rules, and how to add release notes to your PR.
 
 ## OCI Distribution Conformance Tests
 
