@@ -71,25 +71,25 @@ jobs:
         run: grep -E '^[A-Z_]+=' versions.env >> "$GITHUB_ENV"
 
       - name: Setup Go
-        if: ${{ contains(fromJSON('["core","jobservice","registryctl","exporter","registry"]'), matrix.component) }}
+        if: ${{ contains(fromJSON('["core","jobservice","registryctl","exporter","registry","trivy-adapter"]'), matrix.component) }}
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version-file: src/go.mod
           cache-dependency-path: src/go.sum
 
       - name: Install Task
-        if: ${{ contains(fromJSON('["core","jobservice","registryctl","exporter","registry"]'), matrix.component) }}
+        if: ${{ contains(fromJSON('["core","jobservice","registryctl","exporter","registry","trivy-adapter"]'), matrix.component) }}
         uses: arduino/setup-task@24c5e13bce349197642746563945fcdf9355e8f4 # v2
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate API code
-        if: ${{ contains(fromJSON('["core","jobservice","registryctl","exporter","registry"]'), matrix.component) }}
+        if: ${{ contains(fromJSON('["core","jobservice","registryctl","exporter","registry","trivy-adapter"]'), matrix.component) }}
         run: task build:gen-apis
 
       - name: Compile Go binary
-        if: ${{ contains(fromJSON('["core","jobservice","registryctl","exporter","registry"]'), matrix.component) }}
+        if: ${{ contains(fromJSON('["core","jobservice","registryctl","exporter","registry","trivy-adapter"]'), matrix.component) }}
         run: task build:binary:${{ matrix.component }}:${{ env.PLATFORM_PAIR }} GIT_COMMIT="${GITHUB_SHA:0:8}"
 
       - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
