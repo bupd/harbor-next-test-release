@@ -31,7 +31,7 @@ We're developing Harbor Next as a [community proposal](https://github.com/goharb
 - Harbor Satellite Support
 - Versatile Helm Chart
 - Open Compose (install.sh less) supporting Docker & Podman Compose
-- Support for OpenShift,Rancher,k0s 
+- Support for OpenShift, Rancher, k0s
 - Prepending vetted features not yet upstream
 - more...
 
