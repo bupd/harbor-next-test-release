@@ -175,13 +175,11 @@ tasks:
           BUILD_ARGS: '--build-arg BUN_VERSION={{.BUN_VERSION}} --build-arg NGINX_VERSION={{.NGINX_VERSION}}'
 
   registry:
-    desc: "Build Distribution Registry image"
+    desc: "Build Distribution Registry image (compiles binary, then builds container)"
     cmds:
-      - task: _build
+      - task: _binary-image
         vars:
-          IMAGE_NAME: harbor-registry
-          DOCKERFILE: registry.dockerfile
-          BUILD_ARGS: '--build-arg GO_VERSION={{.GO_VERSION}} --build-arg DISTRIBUTION_VERSION={{.DISTRIBUTION_VERSION}}'
+          SERVICE: registry
 
   trivy-adapter:
     desc: "Build Trivy scanner adapter image"
