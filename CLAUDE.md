@@ -33,7 +33,7 @@ git push origin feat/my-feature
 gh pr create
 ```
 
-PR title must follow Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, `ci:`, `chore:`, etc.
+PR title must follow Conventional Commits with lowercase type prefix and capitalized subject: `feat: Add New Feature`, `fix: Resolve Issue`, `docs: Update README`, etc.
 All commits require DCO sign-off: `git commit -s`.
 
 **Merging PRs:** Always use **Squash and merge**. Never "Create a merge commit" or "Rebase and merge". Non-squash merges create `Merge pull request #N` commits that break release-please's commit parser.
